@@ -19,7 +19,6 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
-  "homepage": "https://antuan159.github.io/goit-react-hw-04-reader",
   "browserslist": {
     "production": [
       ">0.2%",
