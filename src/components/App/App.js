@@ -9,7 +9,7 @@ const App = () => (
       <Route
         path="/reader"
         /* eslint-disable-next-line */
-        render={props => <Reader {...props} extraProp={publications} />}
+        render={props => <Reader {...props} items={publications} />}
       />
       <Redirect from="/" to="/reader" />
     </Switch>

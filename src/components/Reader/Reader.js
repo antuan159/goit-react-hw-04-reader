@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import queryString from 'query-string';
+// import queryString from 'query-string';
 import style from './Reader.module.css';
 import Counter from '../Counter';
 import Controls from '../Controls';
@@ -8,34 +8,42 @@ import Publication from '../Publication';
 
 export default class Reader extends Component {
   static propTypes = {
-    extraProp: PropTypes.arrayOf(PropTypes.object).isRequired,
+    items: PropTypes.arrayOf(PropTypes.object).isRequired,
     location: PropTypes.objectOf(Array).isRequired,
     history: PropTypes.objectOf(Array).isRequired,
   };
 
   componentDidMount() {
-    const { location } = this.props;
     const { history } = this.props;
-    if (location.search) {
-      return;
+    if (!this.isIncludedRange()) {
+      history.replace('/reader?item=1');
     }
-    location.search = '?item=1';
-    history.replace(location.search);
+    history.replace(history.location.search);
   }
 
-  handleChangePage = obj => {
-    const { location } = this.props;
+  isIncludedRange = () => {
+    const { items: publications } = this.props;
+    const item = this.queryIndex();
+    if (item <= 0 || item > publications.length) {
+      return false;
+    }
+    return true;
+  };
+
+  queryIndex = () => {
     const { history } = this.props;
-    const str = location.search.slice(6);
-    const str1 = `/reader?item=${Number(str) + obj}`;
-    history.push(str1);
+    return Number(history.location.search.slice(6));
+  };
+
+  handleChangePage = obj => {
+    const { history } = this.props;
+    history.push(`/reader?item=${this.queryIndex() + obj}`);
   };
 
   render() {
-    const { extraProp: publications } = this.props;
-    const { location } = this.props;
-    const query = queryString.parse(location.search);
-    const index = Number(query.item) - 1;
+    const isIndclud = this.isIncludedRange();
+    const index = this.queryIndex() - 1;
+    const { items: publications } = this.props;
     return (
       <div className={style.reader}>
         <Controls
@@ -43,10 +51,8 @@ export default class Reader extends Component {
           indexStart={index}
           indexEnd={publications.length - 1}
         />
-        {location.search && (
-          <Counter index={index} maxLength={publications.length} />
-        )}
-        {location.search && <Publication article={publications[index]} />}
+        {isIndclud && <Counter index={index} maxLength={publications.length} />}
+        {isIndclud && <Publication article={publications[index]} />}
       </div>
     );
   }
